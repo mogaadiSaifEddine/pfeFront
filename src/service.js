@@ -25,8 +25,18 @@ const getAll = () => {
     config
   );
 };
+const getSimilaire = (id) => {
+  let config = {
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  };
+  return axios.post("http://localhost:5000/similair", id, config);
+};
 const functions = {
   recherche,
   getAll,
+  getSimilaire,
 };
 export default functions;

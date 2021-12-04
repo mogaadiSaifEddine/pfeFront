@@ -2,12 +2,14 @@ import logo from "./logo.svg";
 import "./App.css";
 import functions from "./service";
 import React, { useState, useEffect } from "react";
-import { Button, Input, Table, Form, Card, message, Menu } from "antd";
+import { Button, Input, Table, Form, Card, message, Menu, Tooltip } from "antd";
 import {
   MailOutlined,
   AppstoreOutlined,
   SettingOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
+import axios from "axios";
 
 const { SubMenu } = Menu;
 function App() {
@@ -16,7 +18,11 @@ function App() {
   const [recherche, setrecherche] = useState(false);
 
   const [someThingToSearch, setSomeThingToSearch] = useState();
-
+  const getSimi = async (record) => {
+    console.log(record);
+    let res = await axios.post(functions.getSimilaire(record.index));
+    return res;
+  };
   const searchFunc = async () => {
     setrecherche(true);
     let response = await functions.recherche(someThingToSearch);
@@ -35,7 +41,11 @@ function App() {
   };
   const getAll = async () => {
     let allCitations = await functions.getAll();
-    setAllCitations(allCitations.data.all);
+    let newAll = allCitations.data.all.map((el, i) => {
+      return { text: el, index: i };
+    });
+    console.log(newAll);
+    setAllCitations(newAll);
     console.log(allCitations.data);
   };
   useEffect(() => {
@@ -51,6 +61,23 @@ function App() {
       title: "index",
       dataIndex: "index",
       key: "age",
+    },
+    {
+      title: "actions",
+      key: "action",
+      render: (text, record) => (
+        <Tooltip title="voir plus détails">
+          <Button
+            className="mx-1"
+            type="dashed"
+            shape="circle"
+            onClick={() => {
+              getSimi(record);
+            }}
+            icon={<EyeOutlined />}
+          />
+        </Tooltip>
+      ),
     },
   ];
   return (
@@ -98,6 +125,7 @@ function App() {
           Recherche
         </Button>
         <Table columns={columns} dataSource={elements}></Table>
+        <Table columns={columns} dataSource={allCitations}></Table>
       </Card>
     </div>
   );
